@@ -1,0 +1,80 @@
+name: GuestWindows
+options:
+  bundleIdPrefix: com.guestvrgt
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    TARGETED_DEVICE_FAMILY: "2" # iPad only
+    CODE_SIGN_IDENTITY: ""
+    CODE_SIGNING_REQUIRED: "NO"
+    CODE_SIGNING_ALLOWED: "NO"
+    ENABLE_BITCODE: "NO"
+
+targets:
+  GuestWindowsCore:
+    type: framework
+    platform: iOS
+    sources:
+      - path: Sources/GuestWindowsCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.guestvrgt.guestwindows.core
+        SKIP_INSTALL: "NO"
+
+  GuestWindows:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/GuestWindowsApp
+      - path: Resources
+    info:
+      path: Sources/GuestWindowsApp/Info.plist
+      properties:
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSLocalNetworkUsageDescription: "Guest Windows runs a local web server so Safari can display the emulated desktop."
+        NSBonjourServices: []
+    dependencies:
+      - target: GuestWindowsCore
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.guestvrgt.guestwindows
+        PRODUCT_NAME: "Guest Windows"
+        TARGETED_DEVICE_FAMILY: "2"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+
+  GuestWindowsCoreTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests/GuestWindowsCoreTests
+    dependencies:
+      - target: GuestWindowsCore
+        embed: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.guestvrgt.guestwindows.coretests
+
+schemes:
+  GuestWindows:
+    build:
+      targets:
+        GuestWindows: all
+        GuestWindowsCoreTests: [test]
+    test:
+      targets:
+        - GuestWindowsCoreTests
+    run:
+      config: Debug
